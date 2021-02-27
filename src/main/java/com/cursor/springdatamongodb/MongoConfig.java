@@ -7,8 +7,10 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
+@EnableMongoRepositories(basePackages = "com.cursor.springdatamongodb")
 public class MongoConfig {
     @Bean
     public MongoClient mongoClient() {

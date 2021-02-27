@@ -1,5 +1,6 @@
 package com.cursor.springdatamongodb;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,9 @@ import java.util.List;
 @Document(collection = "my-alarms")
 public class Alarm implements Serializable {
     @Id
+    @JsonFormat(shape = JsonFormat.Shape.NATURAL)
     private ObjectId alarmId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime alarmTime;
     private List<DayOfWeek> alarmSchedule;
 

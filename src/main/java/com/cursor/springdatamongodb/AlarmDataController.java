@@ -1,5 +1,8 @@
 package com.cursor.springdatamongodb;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,45 +18,61 @@ public class AlarmDataController {
 
     private final AlarmRepoImpl alarmRepoService;
 
+    ObjectMapper mapper = new ObjectMapper();
+
     @Autowired
     public AlarmDataController(AlarmRepoImpl alarmRepoService) {
         this.alarmRepoService = alarmRepoService;
     }
 
     @GetMapping
-    public List<Alarm> getAllAlarms() {
-        return alarmRepoService.getAll();
+    public List<String> getAllAlarms() {
+        return alarmRepoService.getAll().stream()
+                .map(a -> {
+                    try {
+                        return mapper.writeValueAsString(a);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        return a.toString();
+                    }
+                }).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Alarm getAlarmById(@PathVariable("id") String id) {
-        return alarmRepoService.getById(id);
+    public String getAlarmById(@PathVariable("id") String id) {
+        try {
+            return mapper.writeValueAsString(alarmRepoService.getById(id));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return alarmRepoService.getById(id).toString();
+        }
     }
 
     @PostMapping
-    public Alarm createNewAlarm(@RequestBody AlarmRequest newAlarm) {
-        return alarmRepoService.add(newAlarm.toAlarm());
+    public String createNewAlarm(@RequestBody AlarmRequest newAlarm) {
+        return alarmRepoService.add(newAlarm.toAlarm()).toString();
     }
 
     @PutMapping("/time/{id}")
-    public Alarm updateAlarmTime(@PathVariable("id") String id,
-                                 @RequestBody TimeUpdateRequest updatedTime) {
+    public String updateAlarmTime(@PathVariable("id") String id,
+                                  @RequestBody TimeUpdateRequest updatedTime) {
         Alarm alarmToEdit = alarmRepoService.getById(id);
         alarmToEdit.setAlarmTime(updatedTime.toAlarm().getAlarmTime());
-        return alarmRepoService.editAlarmTime(alarmToEdit);
+        return alarmRepoService.editAlarmTime(alarmToEdit).toString();
     }
 
     @PutMapping("/schedule/{id}")
-    public Alarm updateAlarmSchedule(@PathVariable("id") String id,
-                                     @RequestBody ScheduleUpdateRequest updatedSchedule) {
+    public String updateAlarmSchedule(@PathVariable("id") String id,
+                                      @RequestBody ScheduleUpdateRequest updatedSchedule) {
         Alarm alarmToEdit = alarmRepoService.getById(id);
         alarmToEdit.setAlarmSchedule(updatedSchedule.toAlarm().getAlarmSchedule());
-        return alarmRepoService.editAlarmSchedule(alarmToEdit);
+        return alarmRepoService.editAlarmSchedule(alarmToEdit).toString();
     }
 
     @DeleteMapping("/{id}")
-    public Alarm deleteAlarm(@PathVariable("id") String id) {
-        return alarmRepoService.deleteById(id);
+    public String deleteAlarm(@PathVariable("id") String id) {
+        Alarm deletedAlarm = alarmRepoService.deleteById(id);
+        return deletedAlarm != null ? deletedAlarm.toString() : "No such alarm in DB!";
     }
 
     @Data
