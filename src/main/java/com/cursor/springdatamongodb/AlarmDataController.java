@@ -72,7 +72,7 @@ public class AlarmDataController {
     @DeleteMapping("/{id}")
     public String deleteAlarm(@PathVariable("id") String id) {
         Alarm deletedAlarm = alarmRepoService.deleteById(id);
-        return deletedAlarm != null ? deletedAlarm.toString() : "No such alarm in DB!";
+        return deletedAlarm != null ? deletedAlarm.toString() : "Alarm is successfully deleted!";
     }
 
     @Data
